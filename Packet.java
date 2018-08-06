@@ -10,7 +10,7 @@ public class Packet
     private int seqnum; //packets seq. number
     private int acknum; //packet ack. number
     private boolean split;
-    private boolean last_chunck;
+    private boolean last_shard;//Referncing whether this is the last of a packet(when sharding is necessary)
     private int checksum; //packet checksum
 
 
@@ -24,7 +24,7 @@ public class Packet
         this.checksum=checksum;
         this.ran=new Random();
         split=false;
-        last_chunck=true;
+        last_shard=true;
         setChecksum();
     }
     
@@ -36,7 +36,7 @@ public class Packet
         this.checksum=other.checksum;
         this.ran=other.ran;
         this.split=other.split;
-        this.last_chunck=other.last_chunck;
+        this.last_shard=other.last_shard;
         setChecksum();
 
 
@@ -55,11 +55,11 @@ public class Packet
 
     public boolean isSplit(){return  split;}
 
-    public boolean isLast_chunck(){return last_chunck;}
+    public boolean islast_Shard(){return last_shard;}
 
     public void setSplit(boolean split){this.split =  split;}
 
-    public void setLast(boolean last){this.last_chunck =last_chunck;}
+    public void setLast(boolean last){this.last_shard =last;}
 
     public Message getMessage()
     {
@@ -95,8 +95,6 @@ public class Packet
             checksum_builder+= seqnum;
             checksum_builder+=checksum_builder;
             checksum_builder=~checksum_builder;
-           // System.out.println("CheckSum: "+checksum_builder);
-
             return checksum_builder;
 
 

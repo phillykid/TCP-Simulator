@@ -10,22 +10,24 @@ public class ReceiverTransport
 {
     private ReceiverApplication ra;
     private NetworkLayer nl;
-    private boolean bufferingPackets;
-    private int lowest_sequential_rec;
-    private int curr_pkt_seq;
+    private boolean bufferingPackets; //Whether we accept packets out of order.
+    private int lowest_sequential_received; //Last seq we got an ack for
+    private int curr_pkt_seq; //Seq number of last sent packet
     private ArrayList<Packet> buffer = new ArrayList<Packet>();
+    
 
 
     public ReceiverTransport(NetworkLayer nl){
         ra = new ReceiverApplication();
         this.nl=nl;
-        lowest_sequential_rec=0;
-        curr_pkt_seq=0;
         initialize();
     }
 
     public void initialize()
     {
+        this.lowest_sequential_received=0;
+        this.curr_pkt_seq=0;
+        this.bufferingPackets = false;
     }
 
     /**
@@ -40,8 +42,8 @@ public class ReceiverTransport
 
         if(pkt.isCorrupt())
         {
-            System.out.println("CORRUPT ON REC SIDE");
-            sendACK(lowest_sequential_rec);
+            System.out.println("Corrupt On ReceiverApplication Side");
+            sendACK(lowest_sequential_received);
             return;
         }
 
@@ -49,25 +51,25 @@ public class ReceiverTransport
 
         curr_pkt_seq = pkt.getSeqnum();
 
-            if(lowest_sequential_rec == curr_pkt_seq) {
+            if(lowest_sequential_received == curr_pkt_seq) {
                 System.out.println("GOT CORRECT PKT  FROM SEND SIDE---------");
 
                 buffer.add(pkt);
                 sortPacket();
 
-                lowest_sequential_rec = cumilative_ack();
-                sendACK(lowest_sequential_rec);
+                lowest_sequential_received = cumilative_ack();
+                sendACK(lowest_sequential_received);
                 clear_buffer_of_completed();
                 buffered_emptied();
 
             }
-            else if(bufferingPackets && pkt.getSeqnum()>lowest_sequential_rec) {
+            else if(bufferingPackets && pkt.getSeqnum()>lowest_sequential_received) {
 
-                sendACK(lowest_sequential_rec);
+                sendACK(lowest_sequential_received);
                 buffer.add(pkt);
     }
             else{
-                sendACK(lowest_sequential_rec);
+                sendACK(lowest_sequential_received);
 
             }
     }
@@ -78,17 +80,17 @@ public class ReceiverTransport
      * send accumulative ack
      */
     private int cumilative_ack() {
-        int higest_ack = buffer.get(0).getAcknum();
+        int highest_ack = buffer.get(0).getAcknum();
         for (int i = 0; i < buffer.size() - 1; i++) {
             if (buffer.get(i).getAcknum() == buffer.get(i + 1).getSeqnum()) {
-                higest_ack = buffer.get(i + 1).getAcknum();
+                highest_ack = buffer.get(i + 1).getAcknum();
             }
                 else{
-                return higest_ack;
+                return highest_ack;
             }
 
             }
-    return higest_ack;
+    return highest_ack;
     }
 
 
@@ -147,7 +149,7 @@ public class ReceiverTransport
     private boolean check_for_more_completed_segments(ArrayList<Packet> segmented_packets) {
         for (int i = 0; i < segmented_packets.size() - 1; i++) {
             if (segmented_packets.get(i).getAcknum() == segmented_packets.get(i + 1).getSeqnum()) {
-                if (segmented_packets.get(i + 1).isLast_chunck() == true) {
+                if (segmented_packets.get(i + 1).islast_Shard() == true) {
                     return true;
                 }
             }
@@ -168,7 +170,7 @@ public class ReceiverTransport
         {
             if(segmented_packets.get(i).getAcknum()==segmented_packets.get(i+1).getSeqnum()) {
                 counter++;
-                if(segmented_packets.get(i+1).isLast_chunck()==true)
+                if(segmented_packets.get(i+1).islast_Shard()==true)
                 {
                     counter++;
                     ArrayList<Packet> pkts_to_combine = new ArrayList<Packet>();
