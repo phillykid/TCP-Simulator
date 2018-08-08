@@ -224,6 +224,7 @@ private void re_send_first_packet_in_window()
                     work_through_window();
                 }
             }
+            if(working_window.isEmpty() && packets_to_send.isEmpty()) System.out.println("\n\n----- All messages that were sent have been delivered! -----\n\n");
         }
 
     }
@@ -241,6 +242,7 @@ private void re_send_first_packet_in_window()
             if(p.getSeqnum()<largest_ack)
             {
                 working_window.remove(p);
+                System.out.println("Clearing Packet with SeqNum:  " + p.getSeqnum() + " Because of cumlative ACK being: " + largest_ack);
             }
 
         }
