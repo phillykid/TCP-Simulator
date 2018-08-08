@@ -153,6 +153,8 @@ public class SenderTransport
 {
     working_window.add(packets_to_send.remove());
     nl.sendPacket(new Packet(working_window.get(working_window.size()-1)), Event.RECEIVER);
+    System.out.println("\n----- New Packet Added to Working Window -----\n");
+
 
     if(tl.isTimerOn() == 0) {
         tl.startTimer(time_to_wait);
@@ -172,6 +174,7 @@ private void re_send_first_packet_in_window()
     nl.sendPacket(new Packet(working_window.get(0)), Event.RECEIVER);
     tl.stopTimer();
     tl.startTimer(time_to_wait);
+    System.out.println("\n----- Resending First Packet in the Window -----\n");
     waiting_on = working_window.get(0).getAcknum();
     last_sent = seqNum;
 
@@ -188,7 +191,7 @@ private void re_send_first_packet_in_window()
         }
         if(!working_window.isEmpty()) {
             if (working_window.get(0).getAcknum() == pkt.getAcknum()) {
-                System.out.println("GOT CORRECT ACK NUMBER FROM REC SIDE---------");
+                System.out.println("\n----- Received Correct Ack Number from Reciever Side -----\n");
                 tl.stopTimer();
                 repeat_ack_counter = 0;
                 working_window.remove(0);
@@ -202,6 +205,8 @@ private void re_send_first_packet_in_window()
 
                 repeat_ack_counter++;
                 if (repeat_ack_counter == 3) {
+                    System.out.println("\n----- Three Repeat Acks of: "+ pkt.getAcknum() +"  -----\n");
+
                     if (!bufferingPackets) {
                         work_through_window();
                         repeat_ack_counter = 0;
@@ -224,7 +229,10 @@ private void re_send_first_packet_in_window()
                     work_through_window();
                 }
             }
-            if(working_window.isEmpty() && packets_to_send.isEmpty()) System.out.println("\n\n----- All messages that were sent have been delivered! -----\n\n");
+            if(working_window.isEmpty() && packets_to_send.isEmpty()) {
+            System.out.println("\n\n----- All messages that were sent have been delivered! Time Taken: "+tl.getTime() +" -----\n\n");
+            System.exit(0);
+            }
         }
 
     }
@@ -238,6 +246,7 @@ private void re_send_first_packet_in_window()
     {
 
         ArrayList<Packet> clone = new ArrayList<Packet>(working_window);
+        System.out.println(" ");
         for (Packet p:clone) {
             if(p.getSeqnum()<largest_ack)
             {
@@ -246,6 +255,8 @@ private void re_send_first_packet_in_window()
             }
 
         }
+        System.out.println(" ");
+
     }
 
     /**

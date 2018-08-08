@@ -42,7 +42,7 @@ public class ReceiverTransport
 
         if(pkt.isCorrupt())
         {
-            System.out.println("Corrupt On ReceiverApplication Side");
+            System.out.println("\n----- Corrupt Packet Received from Sender! -----\n");
             sendACK(lowest_sequential_received);
             return;
         }
@@ -52,15 +52,15 @@ public class ReceiverTransport
         curr_pkt_seq = pkt.getSeqnum();
 
             if(lowest_sequential_received == curr_pkt_seq) {
-                System.out.println("GOT CORRECT PKT  FROM SEND SIDE---------");
+                System.out.println("\n----- Received Packet From Sender-----\n");
+                
 
                 buffer.add(pkt);
                 sortPacket();
 
-                lowest_sequential_received = cumilative_ack();
+                lowest_sequential_received = cumulative_ack();
                 sendACK(lowest_sequential_received);
                 clear_buffer_of_completed();
-                buffered_emptied();
 
             }
             else if(bufferingPackets && pkt.getSeqnum()>lowest_sequential_received) {
@@ -79,7 +79,7 @@ public class ReceiverTransport
      * In case out-of-order package is received and the receiver base packet just arrived,
      * send accumulative ack
      */
-    private int cumilative_ack() {
+    private int cumulative_ack() {
         int highest_ack = buffer.get(0).getAcknum();
         for (int i = 0; i < buffer.size() - 1; i++) {
             if (buffer.get(i).getAcknum() == buffer.get(i + 1).getSeqnum()) {
@@ -113,11 +113,7 @@ public class ReceiverTransport
 
     }
 
-    private void buffered_emptied()
-    {
-        if(buffer.isEmpty())             System.out.println("Buffer Emptied");
 
-    }
 
     /**
      * Remove packets that are successfully sent up to the application level from the buffer

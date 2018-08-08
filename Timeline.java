@@ -111,11 +111,7 @@ public class Timeline
 
     public void stopTimer()
     {
-        if(timerPointer==null)
-        {
-            System.out.println("Timer is not on!");
-            return;
-        }     
+        if(timerPointer==null) return;
         
         timerPointer.killTimer();
         timerPointer=null;
@@ -125,6 +121,11 @@ public class Timeline
     {
         if(timerPointer!=null) return 1;
         return 0;
+    }
+
+    public int getTime()
+    {
+        return timeSoFar;
     }
 
     
