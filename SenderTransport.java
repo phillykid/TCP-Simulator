@@ -11,13 +11,10 @@ public class SenderTransport
 
     private int time_to_wait;
     private int seqNum;
-    private int waiting_on; //ack that we are waiting to receive
-    private int last_sent; //seq number of the packet last sent to receiver
     private int repeat_ack_counter; //count duplicate ack
     private int window_size; //window size
     private int mss; //maximum segment size
     private boolean bufferingPackets; //buffer on/off
-    private ArrayList buffer = new ArrayList<Message>();
     private ArrayList<Packet> working_window = new ArrayList<Packet>();
     private Queue<Packet> packets_to_send = new LinkedList<>();
 
@@ -32,8 +29,6 @@ public class SenderTransport
     public void initialize()
     {
         seqNum=0;
-        waiting_on=0;
-        last_sent=0;
         window_size=0;
         repeat_ack_counter=0;
         time_to_wait=200; //timer value
@@ -138,10 +133,8 @@ public class SenderTransport
 
             if (tl.isTimerOn()==0) {
                 tl.startTimer(time_to_wait);
-                waiting_on = working_window.get(i).getAcknum();
 
             }
-            last_sent = seqNum;
 
         }
     }
@@ -158,10 +151,8 @@ public class SenderTransport
 
     if(tl.isTimerOn() == 0) {
         tl.startTimer(time_to_wait);
-        waiting_on = working_window.get(working_window.size()-1).getAcknum();
 
     }
-    last_sent = seqNum;
 
     seqNum=working_window.get(working_window.size()-1).getAcknum();
 }
@@ -175,8 +166,6 @@ private void re_send_first_packet_in_window()
     tl.stopTimer();
     tl.startTimer(time_to_wait);
     System.out.println("\n----- Resending First Packet in the Window -----\n");
-    waiting_on = working_window.get(0).getAcknum();
-    last_sent = seqNum;
 
     
 
@@ -198,7 +187,6 @@ private void re_send_first_packet_in_window()
                 if (!packets_to_send.isEmpty()) working_window.add(packets_to_send.remove());
                 if (!working_window.isEmpty()) {
                     tl.startTimer(time_to_wait);
-                    waiting_on = working_window.get(0).getAcknum();
                 }
 
             } else if (working_window.get(0).getSeqnum() == pkt.getAcknum()) {
