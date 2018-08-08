@@ -6,7 +6,14 @@ public class ReceiverApplication
 {
     public void receiveMessage(Message msg)
     {
-        System.out.println("Message transport from receivertrans to receiverapp successful: " + msg.getMessage());
+        String print_template = 
+        "\n\n--------------------------------------------------------------------- START \n"+
+        "Message transport from Transport Layer to Receiver Application Successful: \n\n" +
+        msg.getMessage() +
+        "\n\n---------------------------------------------------------------------  END ";
+
+        System.out.println(print_template);
+        
     }
 
 }

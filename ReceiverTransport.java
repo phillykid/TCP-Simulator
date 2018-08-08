@@ -209,7 +209,6 @@ public class ReceiverTransport
     {
         Packet toSend = new Packet(new Message("ACK"),0,number,0);
         nl.sendPacket(toSend,Event.SENDER);
-      //  tl.startTimer(6);
     }
 
 

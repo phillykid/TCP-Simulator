@@ -1,4 +1,3 @@
-
 import java.util.ArrayList;
 import java.util.Queue;
 import java.util.LinkedList;
@@ -24,12 +23,6 @@ public class SenderTransport
 
     public SenderTransport(NetworkLayer nl){
         this.nl=nl;
-        seqNum=0;
-        waiting_on=0;
-        last_sent=0;
-        window_size=0;
-        repeat_ack_counter=0;
-        time_to_wait=200; //timer value
         initialize();
 
     }
@@ -38,6 +31,12 @@ public class SenderTransport
 
     public void initialize()
     {
+        seqNum=0;
+        waiting_on=0;
+        last_sent=0;
+        window_size=0;
+        repeat_ack_counter=0;
+        time_to_wait=200; //timer value
     }
 
     /**
@@ -137,7 +136,8 @@ public class SenderTransport
             nl.sendPacket(new Packet(working_window.get(i)), Event.RECEIVER);
 
 
-            if (tl.startTimer(time_to_wait) == 1) {
+            if (tl.isTimerOn()==0) {
+                tl.startTimer(time_to_wait);
                 waiting_on = working_window.get(i).getAcknum();
 
             }
@@ -154,7 +154,8 @@ public class SenderTransport
     working_window.add(packets_to_send.remove());
     nl.sendPacket(new Packet(working_window.get(working_window.size()-1)), Event.RECEIVER);
 
-    if(tl.startTimer(time_to_wait) == 1) {
+    if(tl.isTimerOn() == 0) {
+        tl.startTimer(time_to_wait);
         waiting_on = working_window.get(working_window.size()-1).getAcknum();
 
     }
@@ -170,11 +171,11 @@ private void re_send_first_packet_in_window()
 {
     nl.sendPacket(new Packet(working_window.get(0)), Event.RECEIVER);
     tl.stopTimer();
-    if(tl.startTimer(time_to_wait) == 1) {
-        waiting_on = working_window.get(0).getAcknum();
-        last_sent = seqNum;
+    tl.startTimer(time_to_wait);
+    waiting_on = working_window.get(0).getAcknum();
+    last_sent = seqNum;
 
-    }
+    
 
 }
 
@@ -246,7 +247,7 @@ private void re_send_first_packet_in_window()
     }
 
     /**
-     * timer expired
+     * Timer expired
      * Resend the window or first packet in window depending on tcp
      */
     public void timerExpired()
