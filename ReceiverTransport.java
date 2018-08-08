@@ -134,7 +134,7 @@ public class ReceiverTransport
         }
         work_through_segments(segmented_packets);
 
-        while(check_for_more_completed_segments(buffer)) {
+        while(!buffer.isEmpty() && check_for_more_completed_segments(buffer)) {
             clear_buffer_of_completed();
 
         }
@@ -149,8 +149,6 @@ public class ReceiverTransport
                     return true;
                 }
             }
-            return false;
-
         }
         return false;
     }

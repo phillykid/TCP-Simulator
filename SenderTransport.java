@@ -229,6 +229,7 @@ private void re_send_first_packet_in_window()
                     work_through_window();
                 }
             }
+            
             if(working_window.isEmpty() && packets_to_send.isEmpty()) {
             System.out.println("\n\n----- All messages that were sent have been delivered! Time Taken: "+tl.getTime() +" -----\n\n");
             System.exit(0);
